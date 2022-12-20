@@ -2,6 +2,8 @@ FROM jupyter/datascience-notebook:python-3.9.12
 
 ARG GITHUB=6ad88af225c508d32214e94fbfabe8bec2e921a0
 
+USER root
+
 ENV PATH=/opt/conda/envs/myharmonizer/bin:/opt/conda/condabin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 WORKDIR /app
@@ -21,10 +23,11 @@ RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc |
 # add the R 4.0 repo from CRAN -- adjust 'focal' to 'groovy' or 'bionic' as needed
 RUN add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
 
-RUN conda env create -f ./myharmonizer/myharmonizer.yml python=3.9.12
+RUN conda env create -f ./myharmonizer/myharmonizer/myharmonizer.yml python=3.9.12
 RUN pip install ./myharmonizer/
+COPY requirements.txt .
 RUN pip install -r requirements.txt
-RUN cp -a ./myharmonizer/* .
+RUN cp -a ./myharmonizer/myharmonizer/* .
 
 #SHELL ["/bin/bash","-c"]
 RUN apt-get install -y libssl-dev
@@ -38,4 +41,4 @@ RUN Rscript -e "install.packages('plyr',repos='http://cran.us.r-project.org', de
 
 COPY . .
 
-CMD ["streamlit","run","app.py"]
+CMD ["streamlit","run","app.py","--server.port",80]
