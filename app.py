@@ -9,8 +9,8 @@ import streamlit_ext as ste
 st.markdown("<h1 style='text-align: center; font-size: 65px; color: #4682B4;'>{}</h1>".format('Myharmonizer Application'), unsafe_allow_html=True)
 examples = st.selectbox('Please select example:',('None', 'SEQC', 'Multi-tissue', 'Multi-cell line'))
 
-meta_json = st.file_uploader("Upload Meta Json File:")
-input_data = st.file_uploader("Upload Meta Data (Excel/CSV) File:")
+meta_json = st.file_uploader("Upload myHarmonizer JSON file:")
+input_data = st.file_uploader("Upload user count data (Excel/CSV) file:")
 
 if meta_json != None or examples != 'None':
     if examples == 'Multi-cell line':
@@ -40,7 +40,7 @@ if meta_json != None or examples != 'None':
         newdata = newdata.set_index(index_col)
 
         transformeddata = toy_mH.transform(newdata)
-        metric_option = st.selectbox('Which metric usage?',('Pearson', 'Spearman', 'CCC', 'Euclidean', 'Manhattan', 'Cosine'))
+        metric_option = st.selectbox('Select similarity metric:',('Pearson', 'Spearman', 'CCC', 'Euclidean', 'Manhattan', 'Cosine'))
         print(metric_option)
         pearson_sim = mh.similarity(transformeddata, toy_mH.data, metric=metric_option)
             
@@ -48,11 +48,11 @@ if meta_json != None or examples != 'None':
         #toy_mH.metadata
         pearson_sim
 
-        ste.download_button('Download CSV file:', toy_mH.metadata.to_csv(index=False), file_name='metadata.csv', mime='text/csv')
-        metadata_option = st.selectbox('Which metadata usage?',tuple(toy_mH.metadata.columns))
+        ste.download_button('Download CSV file', toy_mH.metadata.to_csv(index=False), file_name='metadata.csv', mime='text/csv')
+        metadata_option = st.selectbox('Select knowledge base metadata to visualize:',tuple(toy_mH.metadata.columns))
         # Plot heatmap
         fig1 = mh.heatmap(pearson_sim, toy_mH, user_metadata=None, kb_metadata=metadata_option)
         st.pyplot(fig1)
         img = io.BytesIO()
         fig1.savefig(img, format='png')
-        ste.download_button('Download graph image:', data=img, file_name='heatmap.png', mime='image/png')
+        ste.download_button('Download heatmap image', data=img, file_name='heatmap.png', mime='image/png')
