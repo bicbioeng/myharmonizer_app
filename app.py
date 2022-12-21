@@ -11,6 +11,7 @@ examples = st.selectbox('Please select example:',('None', 'SEQC', 'Multi-tissue'
 
 meta_json = st.file_uploader("Upload Meta Json File:")
 input_data = st.file_uploader("Upload Meta Data (Excel/CSV) File:")
+user_meta = st.file_uploader("Upload User Meta Data (Excel/CSV) File:")
 
 if meta_json != None or examples != 'None':
     if examples == 'Multi-cell line':
@@ -30,9 +31,15 @@ if meta_json != None or examples != 'None':
                 newdata = pd.read_csv(input_data)
             else:
                 newdata = pd.read_excel(input_data)
+    # Get User Metadata
+    input_user_metadata = None
+    if user_meta is not None:
+        if user_meta.name.split('.')[-1] == 'csv':
+            input_user_metadata = pd.read_csv(user_meta)
+        else:
+            input_user_metadata = pd.read_excel(user_meta)
     # Get a shortened feature list for the toy dataset
     rawfeatures = toy_mH.modelmeta['encoder_metrics']['features']
-                
     index_col = newdata.columns[0]
     if newdata[index_col].duplicated().sum() > 0:
         st.error("Check " + index_col + " column : deduplicate values. Remove and reupload the correct excel file")
@@ -51,7 +58,7 @@ if meta_json != None or examples != 'None':
         ste.download_button('Download CSV file:', toy_mH.metadata.to_csv(index=False), file_name='metadata.csv', mime='text/csv')
         metadata_option = st.selectbox('Which metadata usage?',tuple(toy_mH.metadata.columns))
         # Plot heatmap
-        fig1 = mh.heatmap(pearson_sim, toy_mH, user_metadata=None, kb_metadata=metadata_option)
+        fig1 = mh.heatmap(pearson_sim, toy_mH, user_metadata=input_user_metadata, kb_metadata=metadata_option)
         st.pyplot(fig1)
         img = io.BytesIO()
         fig1.savefig(img, format='png')
