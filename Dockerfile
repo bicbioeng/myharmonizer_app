@@ -41,4 +41,4 @@ RUN Rscript -e "install.packages('plyr',repos='http://cran.us.r-project.org', de
 
 COPY . .
 
-CMD ["streamlit","run","app.py","--server.port",80]
+CMD ["streamlit","run","app.py","--server.port","80"]
