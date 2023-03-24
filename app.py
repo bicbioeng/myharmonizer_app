@@ -17,12 +17,15 @@ if meta_json != None or examples != 'None':
     if examples == 'Multi-cell line':
             toy_mH = mh.myHarmonizer('examples/myHarmonizer-cells.json')
             newdata = pd.read_csv('examples/cells-test.csv')
+            input_user_metadata = pd.read_csv('examples/cells-test-meta.csv', index_col=0).iloc[:,0]
     elif examples == 'SEQC':
             toy_mH = mh.myHarmonizer('examples/myHarmonizer-seqc.json')
             newdata = pd.read_csv('examples/seqc-test.csv')
+            input_user_metadata = pd.read_csv('examples/seqc-test-meta.csv', index_col=0).iloc[:,0]
     elif examples == 'Multi-tissue':
             toy_mH = mh.myHarmonizer('examples/myHarmonizer-tissue.json')
             newdata = pd.read_csv('examples/tissue-test.csv')
+            input_user_metadata = pd.read_csv('examples/tissue-test-meta.csv', index_col=0).iloc[:,0]
     else:
             json.dump(json.load(meta_json), open('myHarmonizer.json','w'))
             # Build toy myHarmonizer
@@ -35,12 +38,13 @@ if meta_json != None or examples != 'None':
     input_user_metadata = None
     if user_meta is not None:
         if user_meta.name.split('.')[-1] == 'csv':
-            input_user_metadata = pd.read_csv(user_meta)
+            input_user_metadata = pd.read_csv(user_meta, index_col=0).iloc[:,0]
         else:
-            input_user_metadata = pd.read_excel(user_meta)
+            input_user_metadata = pd.read_excel(user_meta, index_col=0).iloc[:,0]
     # Get a shortened feature list for the toy dataset
     rawfeatures = toy_mH.modelmeta['encoder_metrics']['features']
     index_col = newdata.columns[0]
+    
     if newdata[index_col].duplicated().sum() > 0:
         st.error("Check " + index_col + " column : deduplicate values. Remove and reupload the correct excel file")
     else:
@@ -58,6 +62,7 @@ if meta_json != None or examples != 'None':
         ste.download_button('Download CSV file', toy_mH.metadata.to_csv(index=False), file_name='metadata.csv', mime='text/csv')
         metadata_option = st.selectbox('Select knowledge base metadata to visualize:',tuple(toy_mH.metadata.columns))
         # Plot heatmap
+        input_user_metadata
         fig1 = mh.heatmap(pearson_sim, toy_mH, user_metadata=input_user_metadata, kb_metadata=metadata_option)
         st.pyplot(fig1)
         img = io.BytesIO()
