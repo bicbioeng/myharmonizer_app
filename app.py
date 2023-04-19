@@ -7,6 +7,19 @@ import io
 import streamlit_ext as ste
 
 st.markdown("<h1 style='text-align: center; font-size: 65px; color: #4682B4;'>{}</h1>".format('Myharmonizer Application'), unsafe_allow_html=True)
+st.markdown("In order to facilitate the comparison between an existing bulk RNA-seq knowledge base and new user data, the myharmonizer package was designed to take 
+            a myHarmonizer object output from the [DeepSeqDock framework](https://github.com/bicbioeng/DeepSeqDock) and use the frozen preprocessing, 
+            scaling, and transformation methods used to build the knowledge base on new user data. By applying these methods on new user data, the new data 
+            is brought into a similar data representation as the existing knowledge base and similarity can be calculated within a theoretically more meaningful space. 
+            
+            In short, myHarmonizer performs the following:
+            * Transform new user datasets into the same representation as the input myHarmonizer knowledge base
+            * Calculate similarities between user samples and knowledge samples
+            * Visualize similarity matrices
+            
+            Feel free to either try our examples, or upload your own dataset. Excel or CSV files must be formatted with the first column dedicated to sample labels and the first
+            row reserved for gene feature (user input data) or metadata type (user metadata). Only one column of user metadata will be read.") 
+
 examples = st.selectbox('Please select example:',('None', 'SEQC', 'Multi-tissue', 'Multi-cell line'))
 
 meta_json = st.file_uploader("Upload myHarmonizer JSON file:")
@@ -57,6 +70,9 @@ if meta_json != None or examples != 'None':
             
         # Examine metadata in myHarmonizer object
         #toy_mH.metadata
+        st.markdown("Rows are user data samples and columns are knowledge base data samples. For Pearson, Spearman, and CCC metrics, 1 indicates perfect
+            correlation or agreement, 0 indicates no relationship, and -1 indicates a negative relationship. For Euclidean, Manhattan, and Cosine metrics,
+            a value of 0 indicates that there is no distance between the samples.")
         pearson_sim
 
         ste.download_button('Download CSV file', toy_mH.metadata.to_csv(index=False), file_name='metadata.csv', mime='text/csv')
@@ -64,6 +80,10 @@ if meta_json != None or examples != 'None':
         # Plot heatmap
         input_user_metadata
         fig1 = mh.heatmap(pearson_sim, toy_mH, user_metadata=input_user_metadata, kb_metadata=metadata_option)
+        
+        st.markdown("Heatmap rows are user data samples and columns are knowledge base data samples. For Pearson, Spearman, and CCC metrics, 1 indicates perfect
+            correlation or agreement, 0 indicates no relationship, and -1 indicates a negative relationship. For Euclidean, Manhattan, and Cosine metrics,
+            a value of 0 indicates that there is no distance between the samples.")
         st.pyplot(fig1)
         img = io.BytesIO()
         fig1.savefig(img, format='png')
