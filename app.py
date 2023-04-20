@@ -24,7 +24,7 @@ meta_json = st.file_uploader("Upload myHarmonizer JSON file:")
 input_data = st.file_uploader("Upload user count data (Excel/CSV) file:")
 user_meta = st.file_uploader("Upload user metadata (Excel/CSV) file:")
 
-if meta_json != None or examples != 'None':
+if (meta_json != None and input_data != None) or examples != 'None':
     if examples == 'Multi-cell line':
             toy_mH = mh.myHarmonizer('examples/myHarmonizer-cells.json')
             newdata = pd.read_csv('examples/cells-test.csv')
@@ -68,7 +68,7 @@ if meta_json != None or examples != 'None':
             
         # Examine metadata in myHarmonizer object
         #toy_mH.metadata
-        st.markdown("Rows are user data samples and columns are knowledge base data samples. For Pearson, Spearman, and CCC metrics, 1 indicates perfect correlation or agreement, 0 indicates no relationship, and -1 indicates a negative relationship. For Euclidean, Manhattan, and Cosine metrics, a value of 0 indicates that there is no distance between the samples.")
+        st.markdown("Rows are user data samples and columns are knowledge base data samples. For Pearson, Spearman, and CCC metrics, values can range from -1 to 1. 1 indicates a perfect correlation or agreement, 0 no relationship, and -1 an inverse relationship. For Euclidean, Manhattan, and Cosine metrics, a value of 0 indicates that there is no distance between the samples. For Euclidean and Manhattan, distances have a theoretical maximum of infinity. For cosine, the maximum is 2.")
         pearson_sim
 
         ste.download_button('Download CSV file', toy_mH.metadata.to_csv(index=False), file_name='metadata.csv', mime='text/csv')
@@ -77,7 +77,7 @@ if meta_json != None or examples != 'None':
         input_user_metadata
         fig1 = mh.heatmap(pearson_sim, toy_mH, user_metadata=input_user_metadata, kb_metadata=metadata_option)
         
-        st.markdown("Heatmap rows are user data samples and columns are knowledge base data samples. For Pearson, Spearman, and CCC metrics, 1 indicates perfect correlation or agreement, 0 indicates no relationship, and -1 indicates a negative relationship. For Euclidean, Manhattan, and Cosine metrics, a value of 0 indicates that there is no distance between the samples.")
+        st.markdown("Heatmap rows are user data samples and columns are knowledge base data samples. When categorical metadata is available, it is shown as annotations on the heatmap.")
         st.pyplot(fig1)
         img = io.BytesIO()
         fig1.savefig(img, format='png')
